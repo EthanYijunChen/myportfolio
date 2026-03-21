@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio | Immersive Archive</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body, html {
+            width: 100vw; height: 100vh; overflow: hidden;
+            background-color: #050505; color: #fff;
+            font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased;
+            cursor: none; 
+        }
+
+        .cursor-outer, .cursor-inner {
+            position: fixed; top: 0; left: 0;
+            background-color: #fff; border-radius: 50%; pointer-events: none;
+            z-index: 10000; mix-blend-mode: difference; 
+            transform: translate(-50%, -50%);
+            will-change: width, height, transform;
+        }
+        
+        .cursor-outer { width: 38px; height: 38px; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1), height 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+        .cursor-inner { width: 28px; height: 28px; transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1), height 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
+
+        body.hovering-mode .cursor-outer { width: 95px; height: 95px; }
+        body.hovering-mode .cursor-inner { width: 85px; height: 85px; }
+
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        #global-header {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 42vh;
+            padding: 4rem 3rem 0 3rem; z-index: 100; pointer-events: auto; 
+            display: flex; justify-content: center; text-align: center;
+            transition: opacity 0.8s ease, transform 1s cubic-bezier(0.85, 0, 0.15, 1);
+        }
+        #global-header.hidden { opacity: 0; transform: translateY(-40px); pointer-events: none; }
+
+        .header-content { max-width: 800px; }
+        
+        .author-name { 
+            font-family: 'Cinzel', serif; 
+            font-weight: 400; 
+            font-size: 1.6rem; 
+            letter-spacing: 0.3em; 
+            text-transform: uppercase; 
+            margin-bottom: 2rem; 
+            opacity: 0.9; 
+            transform: scaleY(1.15); 
+            display: inline-block;
+        }
+
+        .author-statement { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-style: italic; font-size: 2.2rem; line-height: 1.3; margin-bottom: 1.5rem; color: rgba(255, 255, 255, 0.95); }
+        .author-meta { font-family: 'Inter', sans-serif; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.8rem; }
+
+        #close-btn {
+            position: fixed; top: 2.5rem; right: 2.5rem; z-index: 1000;
+            background: none; border: none; color: #fff;
+            font-family: 'Inter', sans-serif; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s ease; mix-blend-mode: difference; cursor: none; 
+        }
+        #close-btn.visible { opacity: 1; pointer-events: auto; }
+
+        .gallery-container { display: flex; width: 100vw; height: 100vh; }
+
+        .panel {
+            position: relative; flex: 1; height: 100%; overflow: hidden;
+            transition: flex 1.2s cubic-bezier(0.85, 0, 0.15, 1), filter 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            filter: brightness(0.6) contrast(1.1) grayscale(40%);
+        }
+
+        .panel-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: 0; pointer-events: none;
+            opacity: 0; transform: scale(1);
+            transition: opacity 1s ease, transform 3s cubic-bezier(0.25, 1, 0.5, 1);
+            mix-blend-mode: luminosity; 
+        }
+        .panel:hover:not(.active) .panel-bg { opacity: 0.4; transform: scale(1.05); }
+        .panel.active .panel-bg { opacity: 0; } 
+
+        .panel[data-theme="instruments"] { background-color: #0b1410; font-family: 'Cinzel', serif; border-right: 1px solid rgba(201, 180, 117, 0.05); }
+        .panel[data-theme="instruments"] .cover-title { color: #d4c085; font-weight: 400; font-size: 4rem; }
+        
+        .panel[data-theme="cognitive"] { background-color: #0a0000; font-family: 'Cormorant Garamond', serif; box-shadow: inset 0 0 100px rgba(0,0,0,0.9); border-left: 1px solid rgba(255, 51, 51, 0.05); border-right: 1px solid rgba(255, 51, 51, 0.05); }
+        .panel[data-theme="cognitive"] .cover-title { color: #ff3333; font-weight: 300; font-style: italic; font-size: 5.5rem; line-height: 0.9; margin-bottom: 0.5rem; }
+        
+        .panel[data-theme="projection"] { background-color: #050505; font-family: 'Inter', sans-serif; background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px); }
+        .panel[data-theme="projection"] .cover-title { color: #ffffff; font-weight: 300; text-transform: uppercase; letter-spacing: -0.04em; font-size: 3.5rem; }
+
+        .gallery-container:hover .panel:not(:hover):not(.active) { flex: 0.85; filter: brightness(0.2) grayscale(90%); }
+        .panel:hover:not(.active) { flex: 1.3; filter: brightness(1) contrast(1.1) grayscale(0%); }
+        .panel.active { flex: 100 !important; cursor: none; overflow-y: auto; overflow-x: hidden; filter: brightness(1) contrast(1) grayscale(0%) !important; }
+
+        .panel-cover {
+            position: absolute; bottom: calc(12vh + 4rem); left: 3rem; right: 3rem; z-index: 2;
+            display: flex; flex-direction: column; align-items: flex-start;
+            transition: opacity 0.4s ease, transform 0.8s cubic-bezier(0.85, 0, 0.15, 1);
+        }
+        .panel.active .panel-cover { opacity: 0; transform: translateY(-40px); pointer-events: none; }
+        .cover-index { font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.1em; margin-bottom: 0.5rem; opacity: 0.6; }
+        .cover-title { line-height: 1; position: relative; padding-bottom: 0.5rem; }
+        .cover-meta { font-family: 'Inter', sans-serif; margin-top: 1.5rem; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0; transform: translateY(10px); transition: opacity 0.4s ease, transform 0.4s ease; }
+        .panel:hover .cover-meta { opacity: 0.8; transform: translateY(0); }
+
+        #bottom-project {
+            position: fixed; bottom: 0; left: 0; width: 100vw; height: 12vh;
+            background: rgba(10, 10, 31, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(135, 135, 255, 0.2); 
+            z-index: 90; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; cursor: none;
+            transition: height 0.8s cubic-bezier(0.85, 0, 0.15, 1), transform 0.8s cubic-bezier(0.85, 0, 0.15, 1), background 0.8s ease;
+        }
+
+        #bottom-project::before, #bottom-project::after {
+            content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+            opacity: 0; transition: opacity 1s ease;
+        }
+        #bottom-project::before {
+            background: radial-gradient(circle at 50% 150%, rgba(135, 135, 255, 0.4) 0%, rgba(10, 10, 31, 0) 70%); 
+        }
+        #bottom-project::after {
+            background-image: radial-gradient(rgba(135, 135, 255, 0.2) 1px, transparent 1px); 
+            background-size: 20px 20px;
+        }
+
+        #bottom-project:hover:not(.active)::before, #bottom-project:hover:not(.active)::after { opacity: 1; }
+        #bottom-project:hover:not(.active) { height: 18vh; background: #1A1A40; }
+
+        .bp-preview {
+            position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center;
+            transition: opacity 0.4s ease, transform 0.8s cubic-bezier(0.85, 0, 0.15, 1);
+            pointer-events: none;
+        }
+        
+        .bp-title {
+            font-family: 'Syne', sans-serif; font-weight: 600; font-size: 1.1rem;
+            letter-spacing: 0.25em; text-transform: uppercase; color: #fff;
+            display: flex; align-items: center; gap: 1rem;
+            transition: letter-spacing 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), text-shadow 0.8s ease;
+        }
+        
+        #bottom-project:hover:not(.active) .bp-title {
+            letter-spacing: 0.5em; transform: translateY(-5px);
+            text-shadow: 0 0 10px rgba(135, 135, 255, 0.8), 0 0 20px rgba(135, 135, 255, 0.4);
+        }
+
+        .bp-title span { font-size: 0.75rem; opacity: 0.4; letter-spacing: 0.1em; font-family: 'Inter', sans-serif; font-weight: 400; }
+        
+        .bp-subtitle {
+            font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300;
+            font-size: 1.3rem; color: rgba(135, 135, 255, 0.7); margin-top: 0.5rem;
+            opacity: 0; transform: translateY(15px) scale(0.9);
+            transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        #bottom-project:hover:not(.active) .bp-subtitle { opacity: 1; transform: translateY(0) scale(1); }
+
+        .bp-click-wave {
+            position: absolute; border: 2px solid rgba(135, 135, 255, 0.8);
+            border-radius: 50%; pointer-events: none; z-index: 5;
+            transform: translate(-50%, -50%) scale(0); opacity: 1;
+            transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.8s ease;
+        }
+        .bp-click-wave.active { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+
+        #bottom-project.active { height: 100vh; background: #111133; z-index: 150; border-top-color: transparent; overflow-y: auto; overflow-x: hidden; }
+        #bottom-project.active .bp-preview { opacity: 0; transform: translateY(-40px); }
+
+        #bp-content-container {
+            width: 100vw; min-height: 100vh; padding: 0; position: absolute; top: 0; left: 0; z-index: 2;
+            opacity: 0; visibility: hidden; display: flex; flex-direction: column;
+            transition: opacity 0.8s ease 0.4s, visibility 0s 0.4s;
+        }
+        #bottom-project.active #bp-content-container { opacity: 1; visibility: visible; transition: opacity 0.8s ease 0.6s, visibility 0s 0s; }
+
+
+        #bp-content-container .editorial-text, 
+        #bp-content-container .editorial-text h3,
+        #bp-content-container .editorial-text .role-meta {
+            color: rgba(135, 135, 255, 0.9);
+        }
+
+        .content-container {
+            width: 100vw; min-height: 100vh; padding: 0; position: relative; z-index: 2;
+            opacity: 0; visibility: hidden; display: flex; flex-direction: column;
+            transition: opacity 0.8s ease 0.4s, visibility 0s 0.4s;
+        }
+        .panel.active .content-container { opacity: 1; visibility: visible; transition: opacity 0.8s ease 0.6s, visibility 0s 0s; }
+
+        .hero-section { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        
+        .hero-massive-title {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 14vw; line-height: 0.85; text-align: center; white-space: nowrap; z-index: 10; 
+            pointer-events: none; mix-blend-mode: difference; color: #fff;
+        }
+        .panel[data-theme="cognitive"] .hero-massive-title { font-size: 16vw; font-weight: 300; font-style: italic; }
+        .panel[data-theme="projection"] .hero-massive-title { font-family: 'Inter', sans-serif; font-size: 9.5vw; font-weight: 300; line-height: 0.9; text-transform: uppercase; letter-spacing: -0.04em; top: 58%; }
+
+        .bp-custom-hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8vw;
+        }
+        #bp-content-container .bp-custom-hero .hero-massive-title {
+            position: relative; 
+            top: auto; left: auto; transform: none;
+            text-align: left;
+            mix-blend-mode: normal; 
+            color: rgba(135, 135, 255, 0.95);
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3); 
+            flex-shrink: 0; 
+        }
+        #bp-content-container .bp-custom-hero .hero-media-wrapper {
+            width: 48vw; 
+            height: 75vh;
+            margin-left: 5vw;
+        }
+        #bp-content-container .bp-custom-hero .hero-media-wrapper img { object-fit: contain; } 
+        #bp-content-container .bp-custom-hero .hero-media-wrapper::after { background: #111133; } 
+
+        .hero-media-wrapper { width: 55vw; height: 75vh; position: relative; overflow: hidden; }
+        .hero-media-wrapper::after {
+            content: ''; position: absolute; inset: 0; background: #050505; z-index: 2;
+            transform-origin: top; transition: transform 1.5s cubic-bezier(0.77, 0, 0.175, 1) 0.5s;
+        }
+        
+        .panel.active .hero-media-wrapper::after, #bottom-project.active .hero-media-wrapper::after { transform: scaleY(0); }
+        .hero-media-wrapper img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; transform: scale(1.1); transition: transform 2s ease; }
+        .panel.active .hero-media-wrapper img, #bottom-project.active .hero-media-wrapper img { transform: scale(1); }
+
+        .editorial-section { padding: 20vh 8vw; position: relative; display: flex; flex-direction: column; gap: 20vh; }
+        .editorial-block { display: grid; grid-template-columns: 5fr 7fr; gap: 10vw; align-items: center; }
+        .editorial-block.reverse { grid-template-columns: 7fr 5fr; }
+
+        .editorial-text { font-family: 'Inter', sans-serif; font-size: 1.1rem; line-height: 1.8; color: rgba(255,255,255,0.8); max-width: 500px; }
+        .editorial-text h3 { font-size: 2.5rem; margin-bottom: 1rem; color: #fff; line-height: 1.1; }
+        .editorial-text .role-meta { font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 2rem; display: block; }
+        
+        .panel[data-theme="cognitive"] .editorial-text h3 { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300; font-size: 3.5rem; }
+        .panel[data-theme="instruments"] .editorial-text h3 { font-family: 'Cinzel', serif; font-weight: 500; }
+        .panel[data-theme="projection"] .editorial-text h3 { font-family: 'Inter', sans-serif; font-weight: 400; text-transform: uppercase; letter-spacing: -0.02em; }
+
+        .reveal-img { position: relative; overflow: hidden; }
+        .reveal-img::after {
+            content: ''; position: absolute; inset: 0; background: #050505; z-index: 2;
+            transform-origin: right; transition: transform 1.4s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        #bp-content-container .reveal-img::after { background: #111133; } 
+
+        .reveal-img.visible::after { transform: scaleX(0); }
+        .reveal-img img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; display: block; transform: scale(1.05); transition: transform 1.4s ease; }
+        
+        #bp-content-container .reveal-img img { object-fit: contain; } 
+
+        .reveal-img.visible img { transform: scale(1); }
+        
+        .size-tall { height: 80vh; }
+        .size-wide { height: 50vh; width: 110%; margin-left: -5%; }
+        .size-square { height: 50vh; width: 100%; }
+
+        .dual-img-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2vw; width: 100%; }
+        .dual-img-grid .reveal-img:nth-child(1) { transform: translateY(80px); }
+
+        .reveal-video {
+            position: relative; overflow: hidden; background: #000;
+            width: 100vw; height: 90vh; 
+            margin-left: -8vw; margin-top: 10vh;
+            border-radius: 0;
+            transition: width 1.2s cubic-bezier(0.77, 0, 0.175, 1), height 1.2s cubic-bezier(0.77, 0, 0.175, 1), margin-left 1.2s cubic-bezier(0.77, 0, 0.175, 1), border-radius 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        
+        .reveal-video::after {
+            content: ''; position: absolute; inset: 0; background: #050505; z-index: 10;
+            transform-origin: right; transition: transform 1.4s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .reveal-video.visible::after { transform: scaleX(0); }
+
+        .reveal-video.is-playing { width: 100%; margin-left: 0; height: 47.25vw; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); }
+
+        .reveal-video video { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 1; outline: none; border: none; }
+
+        .video-overlay {
+            position: absolute; inset: 0; z-index: 5; background: rgba(0, 0, 0, 0.2);
+            display: flex; align-items: center; justify-content: center;
+            cursor: none; transition: opacity 0.6s ease;
+        }
+        
+        .video-overlay span {
+            font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 300;
+            letter-spacing: 0.3em; text-transform: uppercase; color: #fff;
+            padding: 1rem 2rem; border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 40px; backdrop-filter: blur(4px);
+            transition: background 0.4s ease, border-color 0.4s ease, transform 0.4s ease;
+        }
+        .video-overlay:hover span { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.6); transform: scale(1.05); }
+
+        .reveal-text { opacity: 0; transform: translateY(40px); transition: opacity 1s ease, transform 1.2s cubic-bezier(0.25, 1, 0.5, 1); }
+        .reveal-text.visible { opacity: 1; transform: translateY(0); }
+
+        .hover-target { cursor: none; }
+
+        @media (max-width: 1024px) {
+            .editorial-block, .editorial-block.reverse { grid-template-columns: 1fr; gap: 4rem; }
+            .hero-massive-title { font-size: 20vw; }
+            .panel[data-theme="projection"] .hero-massive-title { font-size: 14vw; }
+            .hero-media-wrapper { width: 80vw; height: 60vh; }
+            .size-wide { width: 100%; margin-left: 0; }
+            .reveal-video { margin-left: -8vw; width: 100vw; height: 60vh; }
+            .reveal-video.is-playing { height: 50vw; } 
+            #global-header { padding: 3rem 2rem; height: auto; pointer-events: none; }
+            .author-statement { font-size: 1.5rem; }
+            .cursor-outer, .cursor-inner { display: none; } 
+            body, html { cursor: auto; }
+            
+            #bottom-project { height: 10vh; }
+            #bottom-project:hover:not(.active) { height: 10vh; background: #111133; }
+            #bottom-project:hover:not(.active) .bp-title { letter-spacing: 0.25em; transform: translateY(0); text-shadow: none; }
+            
+            .dual-img-grid { grid-template-columns: 1fr; gap: 4rem; }
+            .dual-img-grid .reveal-img:nth-child(1) { transform: translateY(0); }
+            .size-square { height: 40vh; }
+            
+            .size-tall { height: 60vh; }
+            .size-wide { height: 35vh; }
+            
+            .bp-title { font-size: 1rem; letter-spacing: 0.15em; }
+            .bp-subtitle { display: none; }
+            .panel-cover { bottom: calc(10vh + 2rem); }
+            
+            .bp-custom-hero {
+                flex-direction: column;
+                justify-content: center;
+                padding: 0;
+            }
+            #bp-content-container .bp-custom-hero .hero-massive-title {
+                text-align: center;
+                margin-bottom: 4vh;
+                font-size: 14vw !important;
+            }
+            #bp-content-container .bp-custom-hero .hero-media-wrapper {
+                width: 80vw;
+                height: 50vh;
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="noise-overlay"></div>
+
+<div class="cursor-outer" id="cursor-outer"></div>
+<div class="cursor-inner" id="cursor-inner"></div>
+
+<header id="global-header">
+    <div class="header-content">
+        <h1 class="author-name">Yijun Chen</h1>
+        <p class="author-statement">Reformatting Silence:<br>Media Interventions at the Margins of Culture and Cognition</p>
+        <div class="author-meta">
+            <span>Transfer Applicant | Fall 2026</span>
+            <span>Critical Making & Media Arts</span>
+        </div>
+    </div>
+</header>
+
+<button id="close-btn" class="hover-target" onclick="closeAll()">— Back to Index</button>
+
+<div class="gallery-container" id="gallery">
+    <div class="panel hover-target" data-theme="instruments" onclick="openPanel(this)">
+        <img src="images/inst-hero.jpg" class="panel-bg" alt="">
+        <div class="panel-cover">
+            <div class="cover-index">01</div>
+            <div class="cover-title">Resonating<br>Antiquity</div>
+            <div class="cover-meta">Digital Revitalization of Intangible Cultural Heritage (2025-2026)</div>
+        </div>
+        <div class="content-container">
+            <div class="hero-section">
+                <div class="hero-massive-title">Resonating<br>Antiquity</div>
+                <div class="hero-media-wrapper"><img src="images/inst-hero.jpg" alt="Hero"></div>
+            </div>
+            
+            <div class="editorial-section">
+                <div class="editorial-block">
+                    <div class="editorial-text reveal-text">
+                        <h3>Audiovisual Prototype</h3>
+                        <span class="role-meta">Designer, Developer & Author</span>
+                        <p>Integrating historical musicology research with interactive design, developed an immersive audiovisual interaction prototype for endangered ancient instruments (Bronze Drum, Bianzhong, Guqin). Utilized MediaPipe for real-time hand tracking and GSAP to create fluid interactive visuals, recontextualizing ancient sonic traditions within a contemporary pop culture framework. This created user-validated visual aesthetics and auditory experiences to revitalize traditional culture and strengthen intergenerational emotional connections.</p>
+                    </div>
+                    <div class="reveal-img size-tall hover-target"><img src="images/inst-img1.jpeg" alt="Prototype"></div>
+                </div>
+
+                <div class="editorial-block reverse">
+                    <div class="reveal-img size-wide hover-target"><img src="images/inst-img2.jpg" alt="Testing"></div>
+                    <div class="editorial-text reveal-text">
+                        <h3>Independent Research</h3>
+                        <span class="role-meta">Under the supervision of Prof. Lorie Loeb, Dartmouth College</span>
+                        <p>Conducted the entire project lifecycle independently, covering all stages from conceptualization, iterative prototyping, and user testing to academic writing. Solely authored a research paper titled “Enhancing Youth Engagement with Chinese Ancient Instruments through Interactive Digital Tools and Pop Music Fusion”, accepted for publication in Applied and Computational Engineering (Proceedings of the 2nd Neural Computing and Applications Workshop, CONF-SPML 2026) following a double-blind peer review.</p>
+                    </div>
+                </div>
+
+                <div class="reveal-video hover-target">
+                    <div class="video-overlay" onclick="playCustomVideo(this)"><span>[ Play Demonstration ]</span></div>
+                    <video poster="images/inst-full.jpg" src="https://dfm5aqlsl5ni8okg.public.blob.vercel-storage.com/inst-video.mp4" playsinline preload="metadata"></video>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel hover-target" data-theme="cognitive" onclick="openPanel(this)">
+        <img src="images/cog-hero.jpg" class="panel-bg" alt="">
+        <div class="panel-cover">
+            <div class="cover-index">02</div>
+            <div class="cover-title">The Absent<br>Present</div>
+            <div class="cover-meta">An Interactive Narrative on Dementia and Systemic Discrimination (2025-2026)</div>
+        </div>
+        <div class="content-container">
+            <div class="hero-section">
+                <div class="hero-massive-title">The Absent<br>Present</div>
+                <div class="hero-media-wrapper"><img src="images/cog-hero.jpg" alt="Hero"></div>
+            </div>
+            
+            <div class="editorial-section">
+                <div class="editorial-block">
+                    <div class="editorial-text reveal-text">
+                        <h3>Narrative Medium</h3>
+                        <span class="role-meta">Designer, Developer & Writer</span>
+                        <p>Designed and developed a suspense-driven narrative serious game centered on an unreliable narrator—a protagonist searching for his “missing” wife. This journey not only embodies metaphors of fragmented memory and time, but also serves as a narrative medium to reveal the chaotic and hostile reality confronting dementia patients. It explores the phenomenology of dementia and its associated systemic stigma, leveraging narrative empathy to interrogate systemic discrimination and elevate a personal tragedy into a wider critique of how society marginalizes vulnerable groups.</p>
+                    </div>
+                    <div class="reveal-img size-tall hover-target"><img src="images/cog-img1.jpg" alt="Gameplay"></div>
+                </div>
+
+                <div class="editorial-block reverse">
+                    <div class="reveal-img size-wide hover-target"><img src="images/cog-img2.jpg" alt="Empathy"></div>
+                    <div class="editorial-text reveal-text">
+                        <h3>Empathy Mechanism</h3>
+                        <span class="role-meta">High-contrast visual style</span>
+                        <p>Crafted an experimental high-contrast visual style and designed an empathy mechanism to simulate cognitive decline. By depicting interactive scenarios of social alienation alongside distortive visual effects, the project confronts players with the isolation, rights violations, and systemic marginalization endured by patients and their caregivers. Implemented a temporal illusion mechanic to construct the false premise of the protagonist’s “youth,” ultimately recontextualizing the gameplay experience through the tragic revelation of his wife’s passing due to caregiver burnout and systemic neglect.</p>
+                    </div>
+                </div>
+
+                <div class="reveal-video hover-target">
+                    <div class="video-overlay" onclick="playCustomVideo(this)"><span>[ Play Demonstration ]</span></div>
+                    <video poster="images/cog-full.jpg" src="https://dfm5aqlsl5ni8okg.public.blob.vercel-storage.com/cog-video.mp4" playsinline preload="metadata"></video>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel hover-target" data-theme="projection" onclick="openPanel(this)">
+        <img src="images/proj-hero.jpg" class="panel-bg" alt="">
+        <div class="panel-cover">
+            <div class="cover-index">03</div>
+            <div class="cover-title">Signal to<br>Noise</div>
+            <div class="cover-meta">Visualizing the Ecological Crisis of Local Tongues (2024-2025)</div>
+        </div>
+        <div class="content-container">
+            <div class="hero-section">
+                <div class="hero-massive-title">Signal<br>To Noise</div>
+                <div class="hero-media-wrapper"><img src="images/proj-hero.jpg" alt="Hero"></div>
+            </div>
+            
+            <div class="editorial-section">
+                <div class="editorial-block">
+                    <div class="editorial-text reveal-text">
+                        <h3>Linguistic Ecology</h3>
+                        <span class="role-meta">Creator, Visual & Sound Designer</span>
+                        <p>Explored the “linguistic ecology” of endangered dialects by engineering a projection mapping system where historical dialect scripts flow, undulate, and overlap into unrecognizable shadows, visually representing the dissolution of dialects under the pressures of cultural homogenization. Constructed audio narratives that transition from ancient dialect poetry to chaotic electromagnetic noise, demonstrating the deterioration of rich cultural sound signals into meaningless static.</p>
+                    </div>
+                    <div class="reveal-img size-tall hover-target"><img src="images/proj-img1.png" alt="System"></div>
+                </div>
+
+                <div class="editorial-block reverse">
+                    <div class="reveal-img size-wide hover-target"><img src="images/proj-img2.png" alt="Visuals"></div>
+                    <div class="editorial-text reveal-text">
+                        <h3>Environmental Experience</h3>
+                        <span class="role-meta">Physical layouts & Audiovisual systems</span>
+                        <p>Designed physical layouts and audiovisual systems, mapping dynamic typography onto diverse textured structures to create an immersive environmental experience. Critically examined the erosion of living local languages by standardized speech, confronting audiences with the ecological crisis of linguistic diversity and the vanishing cultural vitality in the digital age.</p>
+                    </div>
+                </div>
+
+                <div class="reveal-video hover-target">
+                    <div class="video-overlay" onclick="playCustomVideo(this)"><span>[ Play Demonstration ]</span></div>
+                    <video poster="images/proj-full.png" src="https://dfm5aqlsl5ni8okg.public.blob.vercel-storage.com/proj-video.mp4" playsinline preload="metadata"></video>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="bottom-project" class="hover-target" onclick="openBottomProject(event)">
+    <div class="bp-click-wave" id="bp-click-wave"></div>
+
+    <div class="bp-preview">
+        <div class="bp-title"><span>[ 04 ]</span> Hybrid Joy</div>
+        <div class="bp-subtitle">A Speculative Biosphere of Connection</div>
+    </div>
+
+    <div id="bp-content-container">
+        <div class="hero-section bp-custom-hero">
+            <div class="hero-massive-title" style="font-family: 'Syne', sans-serif; font-size: 8vw; font-weight: 800; letter-spacing: -0.02em;">Hybrid<br>Joy</div>
+            <div class="hero-media-wrapper">
+                <img src="images/hybrid-img1.jpg" alt="Hybrid Joy Concept">
+            </div>
+        </div>
+        
+        <div class="editorial-section">
+            <div class="editorial-block">
+                <div class="editorial-text reveal-text">
+                    <h3 style="font-family: 'Syne', sans-serif; font-weight: 600;">Participatory Design</h3>
+                    <span class="role-meta">Experimental Research</span>
+                    <p>Orchestrated a 3-month participatory design experiment, interviewing random trios weekly to capture their unique sources of joy—from organic forms to cherished objects.</p>
+                </div>
+                <div class="reveal-img size-tall hover-target">
+                    <img src="images/hybrid-img2.jpg" alt="Research Process">
+                </div>
+            </div>
+
+            <div class="editorial-block reverse">
+                <div class="reveal-img size-wide hover-target">
+                    <img src="images/hybrid-img3.jpg" alt="Synthesized Forms">
+                </div>
+                <div class="editorial-text reveal-text">
+                    <h3 style="font-family: 'Syne', sans-serif; font-weight: 600;">Speculative Lifeforms</h3>
+                    <span class="role-meta">Visual Synthesis</span>
+                    <p>Synthesized these disparate inputs into innovative "speculative lifeforms." The resulting physical exhibition presented these visually rich creatures as a new language for collective healing, reconstructing human connections.</p>
+                </div>
+            </div>
+
+            <div class="editorial-block">
+                <div class="editorial-text reveal-text">
+                    <h3 style="font-family: 'Syne', sans-serif; font-weight: 600;">Collective Healing</h3>
+                    <span class="role-meta">Social Reflection</span>
+                    <p>The work reflects a deep societal desire for connection, exploring how sharing and restructuring joy can create new forms of psychological support and healing practices in a high-stress era.</p>
+                </div>
+                <div class="dual-img-grid">
+                    <div class="reveal-img size-square hover-target">
+                        <img src="images/hybrid-img4.jpg" alt="Exhibition Detail 1">
+                    </div>
+                    <div class="reveal-img size-square hover-target">
+                        <img src="images/hybrid-img5.jpg" alt="Exhibition Detail 2">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const cursorOuter = document.getElementById('cursor-outer');
+    const cursorInner = document.getElementById('cursor-inner');
+    let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+    let outerX = mouseX, outerY = mouseY;
+    let innerX = mouseX, innerY = mouseY;
+    
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    function renderCursor() {
+        outerX += (mouseX - outerX) * 0.12;
+        outerY += (mouseY - outerY) * 0.12;
+        innerX += (mouseX - innerX) * 0.25;
+        innerY += (mouseY - innerY) * 0.25;
+        
+        cursorOuter.style.transform = `translate(${outerX}px, ${outerY}px) translate(-50%, -50%)`;
+        cursorInner.style.transform = `translate(${innerX}px, ${innerY}px) translate(-50%, -50%)`;
+        requestAnimationFrame(renderCursor);
+    }
+    requestAnimationFrame(renderCursor);
+
+    const hoverTargets = document.querySelectorAll('.hover-target, button, a, .video-overlay');
+    hoverTargets.forEach(target => {
+        target.addEventListener('mouseenter', () => document.body.classList.add('hovering-mode'));
+        target.addEventListener('mouseleave', () => document.body.classList.remove('hovering-mode'));
+    });
+
+    function playCustomVideo(overlayElement) {
+        const wrapper = overlayElement.parentElement;
+        const video = wrapper.querySelector('video');
+        
+        overlayElement.style.opacity = '0';
+        overlayElement.style.pointerEvents = 'none';
+        
+        wrapper.classList.add('is-playing');
+        video.play();
+
+        setTimeout(() => { video.setAttribute('controls', 'true'); }, 1200);
+    }
+
+    function pauseAllVideos() {
+        const videos = document.querySelectorAll('video');
+        const overlays = document.querySelectorAll('.video-overlay');
+        const wrappers = document.querySelectorAll('.reveal-video');
+        
+        videos.forEach(video => {
+            video.pause();
+            video.removeAttribute('controls');
+        });
+        
+        overlays.forEach(overlay => {
+            overlay.style.opacity = '1';
+            overlay.style.pointerEvents = 'auto';
+        });
+
+        wrappers.forEach(wrapper => { wrapper.classList.remove('is-playing'); });
+    }
+
+    const gallery = document.getElementById('gallery');
+    const panels = document.querySelectorAll('.panel');
+    const bottomProject = document.getElementById('bottom-project');
+    const closeBtn = document.getElementById('close-btn');
+    const globalHeader = document.getElementById('global-header');
+    let isAnimating = false;
+    let currentObserver = null;
+
+    function attachObservers(activeContainer) {
+        if (currentObserver) currentObserver.disconnect();
+        
+        currentObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) { entry.target.classList.add('visible'); }
+            });
+        }, { root: activeContainer, rootMargin: '100px 0px -5% 0px', threshold: 0 });
+
+        activeContainer.querySelectorAll('.reveal-img, .reveal-video, .reveal-text').forEach(el => { 
+            currentObserver.observe(el); 
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight) { el.classList.add('visible'); }
+        });
+    }
+
+    function openPanel(clickedPanel) {
+        if (isAnimating || clickedPanel.classList.contains('active')) return;
+        isAnimating = true;
+
+        globalHeader.classList.add('hidden');
+        
+        bottomProject.style.transform = 'translateY(100%)';
+
+        panels.forEach(panel => {
+            if (panel !== clickedPanel) {
+                panel.style.flex = "0.00001"; 
+                panel.style.opacity = "0";
+                panel.style.pointerEvents = "none";
+            }
+        });
+
+        clickedPanel.classList.remove('hover-target');
+        document.body.classList.remove('hovering-mode');
+
+        clickedPanel.style.flex = "";
+        clickedPanel.classList.add('active');
+        closeBtn.classList.add('visible');
+
+        setTimeout(() => { 
+            attachObservers(clickedPanel);
+            isAnimating = false; 
+        }, 1000);
+    }
+
+    function openBottomProject(event) {
+        if (isAnimating || bottomProject.classList.contains('active')) return;
+        
+        const clickWave = document.getElementById('bp-click-wave');
+        const rect = bottomProject.getBoundingClientRect();
+        
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        
+        clickWave.style.left = `${x}px`;
+        clickWave.style.top = `${y}px`;
+        
+        const size = Math.max(rect.width, rect.height) * 2;
+        clickWave.style.width = `${size}px`;
+        clickWave.style.height = `${size}px`;
+        
+        clickWave.classList.add('active');
+        
+        isAnimating = true;
+
+        globalHeader.classList.add('hidden');
+        gallery.style.transform = 'translateY(-10vh)'; 
+        gallery.style.opacity = '0';
+
+        panels.forEach(panel => {
+            panel.style.opacity = "0";
+            panel.style.pointerEvents = "none";
+        });
+
+        bottomProject.classList.remove('hover-target');
+        document.body.classList.remove('hovering-mode');
+        
+        bottomProject.classList.add('active');
+        closeBtn.classList.add('visible');
+
+        setTimeout(() => { 
+            gallery.style.display = 'none'; 
+            attachObservers(bottomProject);
+            clickWave.classList.remove('active'); 
+            isAnimating = false; 
+        }, 1200);
+    }
+
+    function closeAll() {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        globalHeader.classList.remove('hidden');
+        pauseAllVideos();
+        if (currentObserver) currentObserver.disconnect();
+        
+        document.querySelectorAll('.reveal-img, .reveal-video, .reveal-text').forEach(el => el.classList.remove('visible'));
+
+        gallery.style.display = 'flex'; 
+        gallery.style.transform = 'translateY(0)';
+        gallery.style.opacity = '1';
+
+        panels.forEach(panel => {
+            panel.classList.remove('active');
+            panel.classList.add('hover-target');
+            panel.style.flex = ""; 
+            panel.style.opacity = "1";
+            panel.style.pointerEvents = "auto";
+            setTimeout(() => { panel.scrollTop = 0; }, 800);
+        });
+
+        bottomProject.classList.remove('active');
+        bottomProject.classList.add('hover-target');
+        bottomProject.style.transform = 'translateY(0)';
+        
+        setTimeout(() => { bottomProject.scrollTop = 0; }, 800);
+
+        closeBtn.classList.remove('visible');
+        setTimeout(() => { isAnimating = false; }, 1200);
+    }
+</script>
+
+</body>
+</html>
