@@ -15,7 +15,6 @@
         body, html {
             width: 100vw; height: 100vh; overflow: hidden;
             background-color: #050505; color: #fff;
-            /* 全局默认字体栈使用 Inter (sans-serif) */
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; 
             -webkit-font-smoothing: antialiased;
             cursor: none; 
@@ -49,7 +48,7 @@
         }
         #global-header.hidden { opacity: 0; transform: translateY(-40px); pointer-events: none; }
 
-        .header-content { max-width: 800px; }
+        .header-content { max-width: 900px; }
         
         .author-name { 
             font-weight: 500; 
@@ -61,17 +60,28 @@
             display: inline-block;
         }
 
-        /* 作者陈述：统一使用新引入的 Bodoni serif，增加“惊艳”感和高级感 */
         .author-statement { 
             font-family: 'Bodoni Moda', 'Songti SC', serif; 
             font-weight: 300; 
             font-size: 2.2rem; 
             line-height: 1.4; 
-            margin-bottom: 1.5rem; 
+            margin-bottom: 2rem; 
             color: rgba(255, 255, 255, 0.95); 
             letter-spacing: 0.02em; 
         }
-        .author-meta { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.8rem; }
+        
+        .author-statement-en {
+            display: block;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            opacity: 0.7;
+            margin-top: 0.8rem;
+            font-weight: 400;
+        }
+        
+        .author-meta { font-size: 0.75rem; letter-spacing: 0.15em; color: rgba(255, 255, 255, 0.7); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.8rem; }
 
         #close-btn {
             position: fixed; top: 2.5rem; right: 2.5rem; z-index: 1000;
@@ -99,7 +109,6 @@
         .panel:hover:not(.active) .panel-bg { opacity: 0.4; transform: scale(1.05); }
         .panel.active .panel-bg { opacity: 0; } 
 
-        /* 统一的边框与阴影，移除独立的字体设置 */
         .panel[data-theme="instruments"] { background-color: #0b1410; border-right: 1px solid rgba(201, 180, 117, 0.05); }
         .panel[data-theme="instruments"] .cover-title { color: #d4c085; }
         
@@ -120,12 +129,9 @@
         }
         .panel.active .panel-cover { opacity: 0; transform: translateY(-40px); pointer-events: none; }
         
-        /* 元数据统一使用 Inter 保持清晰 */
         .cover-index { font-size: 0.85rem; font-weight: 500; letter-spacing: 0.1em; margin-bottom: 0.5rem; opacity: 0.6; font-family: 'Inter', sans-serif; }
         
-        /* 封面标题排版：这是重新设计让它变得“惊艳”的核心区域 */
         .cover-title { 
-            /* 统一使用新引入的具有张力的 Bodoni serif 字体栈 */
             font-family: 'Bodoni Moda', 'Songti SC', serif; 
             font-size: 3rem; 
             font-weight: 500; 
@@ -135,10 +141,8 @@
             padding-bottom: 0.5rem; 
             transition: transform 0.4s ease;
         }
-        /* 鼠标悬停在非激活面板时，封面标题增加轻微放大效果，提升交互感 */
         .panel:hover:not(.active) .cover-title { transform: scale(1.02) translateX(5px); }
         
-        /* 英文标题：统一使用新字体栈 */
         .cover-title-en { 
             font-family: inherit;
             font-size: 0.35em; 
@@ -150,11 +154,9 @@
             text-transform: uppercase; 
         }
         
-        /* 元数据统一 Inter，保持克制合理 */
         .cover-meta { margin-top: 1.5rem; font-size: 0.75rem; letter-spacing: 0.1em; opacity: 0; transform: translateY(10px); transition: opacity 0.4s ease, transform 0.4s ease; font-family: 'Inter', sans-serif;}
         .panel:hover .cover-meta { opacity: 0.8; transform: translateY(0); }
 
-        /* --- SPLIT BOTTOM PROJECT STYLES --- */
         #bottom-project {
             position: fixed; bottom: 0; left: 0; width: 100vw; height: 12vh;
             background: rgba(10, 10, 15, 0.95);
@@ -194,7 +196,6 @@
         #bottom-project.hover-wirk .bp-half.right { opacity: 0.3; transform: scale(0.98); }
         #bottom-project.hover-hybrid .bp-half.left { opacity: 0.3; transform: scale(0.98); }
 
-        /* 底部导航标题：统一新字体栈 */
         .bp-title {
             font-family: 'Bodoni Moda', 'Songti SC', serif; 
             font-weight: 500; font-size: 1.1rem;
@@ -204,7 +205,6 @@
         }
         .bp-title span { font-size: 0.75rem; opacity: 0.4; letter-spacing: 0.1em; font-weight: 400; font-family: 'Inter', sans-serif;}
         
-        /* 底部导航副标题：统一使用 Inter */
         .bp-subtitle {
             font-family: 'Inter', sans-serif;
             font-weight: 300; font-size: 1.1rem; margin-top: 0.5rem; letter-spacing: 0.05em;
@@ -252,7 +252,6 @@
         .content-container { position: relative; width: 100vw; min-height: 100vh; padding: 0; position: absolute; top: 0; left: 0; z-index: 2; opacity: 0; visibility: hidden; display: flex; flex-direction: column; transform: scale(0.98) translateY(20px); transition: opacity 0.5s ease 0.1s, transform 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.1s, visibility 0s 0.1s; }
         .panel.active .content-container { opacity: 1; visibility: visible; transform: scale(1) translateY(0); transition: opacity 0.6s ease 0.1s, transform 0.9s cubic-bezier(0.25, 1, 0.5, 1) 0.1s, visibility 0s 0s; }
 
-        /* --- THEME COLORS FOR CONTENT --- */
         #hybrid-content-container .editorial-text, 
         #hybrid-content-container .editorial-text h3,
         #hybrid-content-container .editorial-text .role-meta { color: rgba(135, 135, 255, 0.9); }
@@ -283,7 +282,6 @@
         .hero-media-wrapper img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; transform: scale(1.1); transition: transform 2s ease; }
         .hero-section.visible .hero-media-wrapper img { transform: scale(1); }
 
-        /* 超大 Hero 标题：统一新字体栈 */
         .hero-massive-title {
             position: absolute; left: 8vw; top: 50%; font-size: 8vw; line-height: 1.1; text-align: left; z-index: 10; pointer-events: none; mix-blend-mode: normal; color: #fff;
             text-shadow: 0 15px 40px rgba(0,0,0,0.8), 0 2px 10px rgba(0,0,0,0.5); opacity: 0; font-weight: 500; letter-spacing: 0.01em;
@@ -291,7 +289,6 @@
             clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%); transform: translateY(-30%) skewY(3deg); 
             transition: clip-path 1.4s cubic-bezier(0.77, 0, 0.175, 1) 0.1s, transform 1.4s cubic-bezier(0.77, 0, 0.175, 1) 0.1s, opacity 1.2s ease 0.1s;
         }
-        /* Massive 英文字体随主体统一 */
         .hero-massive-title span.en { font-family: inherit; font-size: 0.35em; font-weight: 400; display: block; margin-top: 0.2rem; letter-spacing: 0.05em; opacity: 0.9; text-transform: uppercase; }
 
         .hero-section.visible .hero-massive-title { opacity: 1; clip-path: polygon(0 -20%, 100% -20%, 100% 120%, 0 120%); transform: translateY(-50%) skewY(0deg); }
@@ -311,10 +308,8 @@
         .editorial-block.reverse { grid-template-columns: 7fr 5fr; }
         .editorial-block.full-width { display: flex; flex-direction: column; gap: 8vh; align-items: center; } 
 
-        /* 正文与小标题：Inter 保持清晰与克制合理 */
         .editorial-text { font-family: 'Inter', sans-serif; font-size: 1.05rem; line-height: 1.9; color: rgba(255,255,255,0.85); max-width: 500px; text-align: justify; font-weight: 300; }
         .editorial-block.full-width .editorial-text { max-width: 800px; text-align: center; } 
-        /* 项目内小标题统一 Inter 700 */
         .editorial-text h3 { font-family: inherit; font-size: 2.2rem; margin-bottom: 1rem; color: #fff; line-height: 1.3; font-weight: 700; letter-spacing: 0.02em; }
         .editorial-text .role-meta { font-family: inherit; font-size: 0.75rem; letter-spacing: 0.15em; color: rgba(255,255,255,0.5); margin-bottom: 1.5rem; display: block; text-transform: uppercase; font-weight: 400; }
 
@@ -422,9 +417,14 @@
 <header id="global-header">
     <div class="header-content">
         <h1 class="author-name">陈颐隽</h1>
-        <p class="author-statement">重塑静默：文化与认知边缘的媒介干预</p>
+        <p class="author-statement">
+            重塑静默：边缘认知与文化的媒介重构
+            <span class="author-statement-en">REFORMATTING SILENCE: MEDIA INTERVENTIONS AT THE MARGINS OF CULTURE AND COGNITION</span>
+        </p>
         <div class="author-meta">
-            <span>批判性创客与媒体艺术 | Critical Making & Media Arts</span>
+            <span>跨界视角 | INTERDISCIPLINARY 深度探索数字技术、批判理论与边缘声音的融汇创新。</span>
+            <span>设计哲学 | PHILOSOPHY 践行反思性设计，引导观众从被动观察转化为具身参与。</span>
+            <span>核心价值 | MISSION 构建包容性数字生态，增强边缘叙事在主流视野中的影响力。</span>
         </div>
     </div>
 </header>
@@ -453,9 +453,9 @@
             <div class="editorial-section">
                 <div class="editorial-block">
                     <div class="editorial-text reveal-text">
-                        <h3>视听交互原型</h3>
+                        <h3>沉浸式视听交互原型</h3>
                         <span class="role-meta">设计、开发与作者</span>
-                        <p>将历史音乐学研究与交互设计相融合，为濒临失传的古乐器（铜鼓、编钟、古琴）开发了沉浸式视听原型。通过 MediaPipe 实时手部追踪与 GSAP 动效，将古代声音传统重构于当代流行文化语境中。该项目打造了经用户验证的视觉美学与听觉体验，以期活化传统文化，并建立跨代际的情感共鸣。</p>
+                        <p>融合溯源性声学研究与前沿交互设计，为数千年历史的古乐器(青铜鼓、编钟、古琴)开发了沉浸式视听交互原型。运用 MediaPipe 驱动实时手势追踪，并结合 GSAP 构建流畅的动态视觉，在当代流行文化语境下完成对古乐传统的语义重构。通过受众调研测试，达成视听感官与交互反馈的高度协同，将静态传统文化转化为极具深层共鸣的现代交互体验，成功强化了跨代际人群的情感链接。</p>
                     </div>
                     <div class="reveal-img size-tall hover-target"><img src="images/inst-img1.jpeg" alt="Prototype"></div>
                 </div>
@@ -465,7 +465,7 @@
                     <div class="editorial-text reveal-text">
                         <h3>独立学术研究</h3>
                         <span class="role-meta">指导教授：Lorie Loeb (达特茅斯学院)</span>
-                        <p>独立主导项目的全生命周期，涵盖概念构思、原型迭代、用户测试及学术写作。作为唯一作者，撰写研究论文《Enhancing Youth Engagement with Chinese Ancient Instruments through Interactive Digital Tools and Pop Music Fusion》，经双盲同行评审后，被《Applied and Computational Engineering》（CONF-SPML 2026第二届神经计算与应用研讨会）收录。</p>
+                        <p>独立主导项目的全生命周期，涵盖概念构思、原型迭代、用户测试及学术写作。作为唯一作者，撰写研究论文《Enhancing Youth Engagement with Chinese Ancient Instruments through Interactive Digital Tools and Pop Music Fusion》，经双盲评审，发表于《应用与计算工程》 Applied and Computational Engineering (CONF-SPML 2026)。</p>
                     </div>
                 </div>
             </div>
@@ -477,7 +477,7 @@
         <div class="panel-cover">
             <div class="cover-index">02</div>
             <div class="cover-title">他的余温<br><span class="cover-title-en">The Absent Present</span></div>
-            <div class="cover-meta">关于认知障碍与系统性歧视的交互叙事 (2025-2026)</div>
+            <div class="cover-meta">关于认知障碍与社会性污名的交互叙事 (2025-2026)</div>
         </div>
         <div class="content-container">
             <div class="reveal-video top-video hover-target">
@@ -493,9 +493,9 @@
             <div class="editorial-section">
                 <div class="editorial-block">
                     <div class="editorial-text reveal-text">
-                        <h3>叙事媒介</h3>
+                        <h3>认知迷局</h3>
                         <span class="role-meta">设计、开发与编剧</span>
-                        <p>设计并开发了一款以悬疑驱动的严肃叙事游戏。玩家扮演一位寻找“失踪”妻子的不可靠叙述者。这段旅程不仅隐喻了记忆与时间的剥落，更作为一种叙事媒介，揭示了失智症患者面对的混乱与敌意。项目探讨了失智症的现象学与心理污名化，利用叙事共情机制审视系统性歧视，将个人悲剧投射为对弱势群体边缘化现状的批判。</p>
+                        <p>本作品是一款由悬疑驱动的叙事严肃游戏，玩家将扮演一位寻找“失踪”妻子的不可靠叙事者，通过破碎的记忆片段与错乱的时空隐喻，直观重现认知症患者所面临的混乱且污名化的现实处境。作品深度挖掘了认知症的现象学体验，将病理状态转化为具象的场景设计与叙事媒介，剖析疾病背后的社会性污名等问题。结合严肃游戏机制与叙事伦理，探讨了媒介在消解认知偏见与填补系统性关注空缺方面的干预潜力。</p>
                     </div>
                     <div class="reveal-img size-tall hover-target"><img src="images/cog-img1.jpg" alt="Gameplay"></div>
                 </div>
@@ -503,9 +503,9 @@
                 <div class="editorial-block reverse">
                     <div class="reveal-img size-wide hover-target"><img src="images/cog-img2.jpg" alt="Empathy"></div>
                     <div class="editorial-text reveal-text">
-                        <h3>共情机制</h3>
-                        <span class="role-meta">实验性高对比视觉</span>
-                        <p>打造了实验性的高对比度视觉风格，并设计了模拟认知衰退的共情机制。通过社会疏离的交互场景与扭曲的视觉特效，迫使玩家直面患者及其照护者所承受的孤立与系统性边缘化。游戏中植入了“时间错觉”机制，构建出主角自认为“年轻”的虚假前提；最终通过揭露妻子因照护倦怠与系统性忽视而离世的真相，彻底重构了玩家的情感体验。</p>
+                        <h3>共情交互</h3>
+                        <span class="role-meta">实现情感体验的颠覆</span>
+                        <p>打造了实验性的高对比度视觉风格，并设计了模拟认知衰退的共情机制。通过社会疏离的交互场景与扭曲的视觉特效，迫使玩家直面患者及照护者所承受的孤立与边缘化。游戏中植入了"时间错觉"机制，构建基于主角认知偏差的虚假叙事前提，模拟患者与现实世界的认知鸿沟。最终通过揭示妻子因照护倦怠离世的悲剧真相，实现对玩家情感体验的深层颠覆。</p>
                     </div>
                 </div>
             </div>
@@ -535,7 +535,7 @@
                     <div class="editorial-text reveal-text">
                         <h3>语言生态</h3>
                         <span class="role-meta">创作者、视觉与声音设计</span>
-                        <p>深入探讨濒危方言的“语言生态”，搭建了一套动态投影映射（Projection Mapping）系统。历史方言字符在其中流动、起伏、重叠成难以辨认的阴影，视觉化呈现了方言在文化同质化碾压下的消亡过程。音频叙事从古老的方言诗歌逐渐崩解为刺耳的电磁噪音，展现了丰富的文化声音信号如何退化为无意义的静态底噪。</p>
+                        <p>深入探讨濒危方言的“语言生态”，搭建了一套动态投影映射（Projection Mapping）系统。历史方言字符在其中流动、起伏、重叠成难以辨认的阴影，视觉化呈现了方言在同质化压力下走向濒危的过程。音频叙事从古老的方言诗歌逐渐崩解为刺耳的电磁噪音，展现了丰富的文化声音信号如何退化为无意义的静态底噪。</p>
                     </div>
                     <div class="reveal-img size-tall hover-target"><img src="images/proj-img1.png" alt="System"></div>
                 </div>
@@ -545,7 +545,7 @@
                     <div class="editorial-text reveal-text">
                         <h3>空间体验</h3>
                         <span class="role-meta">物理布局与视听硬件系统</span>
-                        <p>策划物理空间布局与视听硬件系统，将动态字体映射至不同肌理的结构模型上，营造沉浸式环境。项目批判性地审视了标准化语言对鲜活方言的侵蚀，引导观众直面数字时代下语言多样性的生态危机与不断流失的文化生命力。</p>
+                        <p>策划物理空间布局与视听硬件系统，将动态字体映射至不同肌理的结构模型上，营造沉浸式环境。项目批判性地解构数字媒介中“标准化 AI 旁白”对地方语言生态的隐形入侵，关注方言中历史原语与情感肌理在同质化压力下的加速萎缩。通过批判性设计，直面语言多样性的全球生态危机，探索现代数字语境下方言生命力的重构路径。</p>
                     </div>
                 </div>
             </div>
@@ -559,12 +559,12 @@
     <div id="bp-split-container">
         <div class="bp-half left hover-target" onclick="openBottomProject(event, 'wirk')" onmouseenter="hoverBP('wirk')" onmouseleave="leaveBP()">
             <div class="bp-title"><span>[ 04 ]</span> 微刻 Wirk</div>
-            <div class="bp-subtitle">购物与零工支付系统</div>
+            <div class="bp-subtitle">零工协作与即时消费系统</div>
         </div>
         
         <div class="bp-half right hover-target" onclick="openBottomProject(event, 'hybrid')" onmouseenter="hoverBP('hybrid')" onmouseleave="leaveBP()">
             <div class="bp-title"><span>[ 05 ]</span> 三人的奇迹生物 Hybrid Joy</div>
-            <div class="bp-subtitle">连接的推测性生物圈</div>
+            <div class="bp-subtitle">建构“推测性生命圈”的创意疗愈设计</div>
         </div>
     </div>
 
@@ -582,8 +582,8 @@
             <div class="editorial-block">
                 <div class="editorial-text reveal-text">
                     <h3>劳作与消费</h3>
-                    <span class="role-meta">UX/UI 设计与体验测试</span>
-                    <p>在设计这款将消费与零工经济深度结合的新型支付系统时（用户可通过直接付出劳动来获取所需并完成支付），我与团队成员无缝协作，严谨地收集并剖析了多轮用户测试数据。</p>
+                    <span class="role-meta">产品设计、用户体验研究</span>
+                    <p>设计了一款将消费与零工经济深度结合的新型系统，通过与团队成员无缝协作，严谨收集并剖析了多轮用户测试数据，构建“劳动即支付”模型，打破传统货币支付模式，实现零工协作与购物需求的直接价值置换。</p>
                 </div>
                 <div class="reveal-img size-tall img-contain hover-target">
                     <img src="images/wirk-img2.png" alt="Wirk Process">
@@ -597,7 +597,7 @@
                 <div class="editorial-text reveal-text">
                     <h3>迭代优化</h3>
                     <span class="role-meta">用户偏好洞察</span>
-                    <p>我深入挖掘了不同圈层用户的需求与使用习惯，通过高频迭代不断打磨系统。例如，基于用户偏好的数据反馈，我们增加了更多激励导向与社交属性的页面，并显著提升了交互流程中的趣味性体验。</p>
+                    <p>深入挖掘了不同圈层用户的需求与使用习惯，通过高频迭代不断打磨系统。例如，基于用户偏好的数据反馈，增加了更多激励导向与社交属性的页面，并显著提升了交互流程中的趣味性体验。</p>
                 </div>
             </div>
 
