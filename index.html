@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&family=Cinzel:wght@400..900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -72,16 +72,39 @@
         
         .author-statement-en {
             display: block;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.85rem;
-            letter-spacing: 0.15em;
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.25em;
             text-transform: uppercase;
-            opacity: 0.7;
-            margin-top: 0.8rem;
+            opacity: 0.75;
+            margin-top: 1rem;
             font-weight: 400;
         }
         
         .author-meta { font-size: 0.75rem; letter-spacing: 0.15em; color: rgba(255, 255, 255, 0.7); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.8rem; }
+
+        .author-meta span {
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            filter: blur(8px);
+            animation: cinematicReveal 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .author-meta span:nth-child(1) { animation-delay: 0.7s; }
+        .author-meta span:nth-child(2) { animation-delay: 0.9s; }
+        .author-meta span:nth-child(3) { animation-delay: 1.1s; }
+
+        @keyframes cinematicReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+                filter: blur(8px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+        }
 
         #close-btn {
             position: fixed; top: 2.5rem; right: 2.5rem; z-index: 1000;
@@ -465,7 +488,7 @@
                     <div class="editorial-text reveal-text">
                         <h3>独立学术研究</h3>
                         <span class="role-meta">指导教授：Lorie Loeb (达特茅斯学院)</span>
-                        <p>独立主导项目的全生命周期，涵盖概念构思、原型迭代、用户测试及学术写作。作为唯一作者，撰写研究论文《Enhancing Youth Engagement with Chinese Ancient Instruments through Interactive Digital Tools and Pop Music Fusion》，经双盲评审，发表于《应用与计算工程》 Applied and Computational Engineering (CONF-SPML 2026)。</p>
+                        <p>独立主导项目的全生命周期，涵盖概念构思、原型迭代、用户测试及学术写作。作为唯一作者，撰写研究论文《Enhancing Youth Engagement with Chinese Ancient Instruments through Interactive Digital Tools and Pop Music Fusion》，经双盲评审，发表于《应用与计算工程》 <em>Applied and Computational Engineering</em> (CONF-SPML 2026)。</p>
                     </div>
                 </div>
             </div>
